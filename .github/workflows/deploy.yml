@@ -1,0 +1,38 @@
+name: Build and Deploy Grafana
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+  # tags:
+  #   - "*"
+  # pull_request:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+      
+      - name: Build Docker image
+        run: |
+          docker build -t grafana-integration:latest .
+
+      - name: Tag Docker image
+        run: |
+          docker tag grafana-integration:latest ghcr.io/marioapgs/grafana-integration:latest
+
+      - name: Docker login to GHCR
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u "${{ secrets.GHCR_USERNAME }}" --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/marioapgs/grafana-integration:latest
+
+      - name: Trigger deployment on Render
+        run: |
+          curl -X GET "${{ secrets.RENDER_TRIGGER_URL }}"
+          
