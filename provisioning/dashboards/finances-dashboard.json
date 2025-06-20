@@ -1,0 +1,192 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 4058445906546688,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "bepjk75gyn94wb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "bepjk75gyn94wb"
+          },
+          "hide": false,
+          "queryText": "SELECT\n  strftime('%Y-%m-01', date) AS time,\n  category,\n  SUM(amount) AS total\nFROM history\n-- WHERE\n -- date >= '[start_date]'\n -- AND date <= '[end_date]'\n -- iban = '[iban]'\n GROUP BY time, category\nORDER BY time, category;\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT\n  strftime('%Y-%m-01', date) AS time,\n  category,\n  SUM(amount) AS total\nFROM history\n-- WHERE\n -- date >= '[start_date]'\n -- AND date <= '[end_date]'\n -- iban = '[iban]'\n GROUP BY time, category\nORDER BY time, category;\n",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "New panel",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allowCustomValue": true,
+        "current": {
+          "text": "ES2321003877390100335881",
+          "value": "ES2321003877390100335881"
+        },
+        "definition": "SELECT DISTINCT iban FROM history ORDER BY iban;",
+        "includeAll": false,
+        "label": "Cuenta bancaria",
+        "name": "Account",
+        "options": [],
+        "query": "SELECT DISTINCT iban FROM history ORDER BY iban;",
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "2024-01-01",
+          "value": "2024-01-01"
+        },
+        "label": "Start date",
+        "name": "start_date",
+        "options": [
+          {
+            "selected": true,
+            "text": "2024-01-01",
+            "value": "2024-01-01"
+          }
+        ],
+        "query": "2024-01-01",
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "text": "2024-12-31",
+          "value": "2024-12-31"
+        },
+        "description": "",
+        "label": "End date",
+        "name": "end_date",
+        "options": [
+          {
+            "selected": true,
+            "text": "2024-12-31",
+            "value": "2024-12-31"
+          }
+        ],
+        "query": "2024-12-31",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "2025-06-20T07:32:14.226Z",
+    "to": "2025-06-20T19:32:14.226Z"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Finances",
+  "uid": "adwzxp7",
+  "version": 1
+}
