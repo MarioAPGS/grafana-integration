@@ -7,4 +7,4 @@
 #     isDefault: false
 #     editable: true
 #     jsonData:
-#       path: /var/lib/grafana/sqlite_databases/example.db
+#       path: /var/lib/grafana/sqlite_databases/finances.db

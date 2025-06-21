@@ -16,6 +16,10 @@ jobs:
       - name: Check out the repository
         uses: actions/checkout@v3
       
+      - name: Inject Grafana password into env file
+        run: |
+          echo "DS_POSTGRES_PASSWORD=${{ secrets.DS_POSTGRES_PASSWORD }}" >> env.grafana
+      
       - name: Build Docker image
         run: |
           docker build -t grafana-integration:latest .
