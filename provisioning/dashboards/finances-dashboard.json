@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4058445906546688,
+  "id": 4327519787769856,
   "links": [],
   "panels": [
     {
       "datasource": {
         "type": "frser-sqlite-datasource",
-        "uid": "bepjk75gyn94wb"
+        "uid": "fepm46qzm2z28d"
       },
       "fieldConfig": {
         "defaults": {
@@ -37,28 +37,16 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "fillOpacity": 80,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
             "lineWidth": 1,
-            "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
             },
             "thresholdsStyle": {
               "mode": "off"
@@ -76,41 +64,46 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 4,
+        "w": 14,
         "x": 0,
         "y": 0
       },
-      "id": 1,
+      "id": 3,
       "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
         "legend": {
           "calcs": [],
           "displayMode": "list",
-          "placement": "bottom",
+          "placement": "right",
           "showLegend": true
         },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "none",
         "tooltip": {
           "hideZeros": false,
           "mode": "single",
           "sort": "none"
-        }
+        },
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
       },
       "pluginVersion": "12.0.2",
       "targets": [
         {
-          "datasource": {
-            "type": "frser-sqlite-datasource",
-            "uid": "bepjk75gyn94wb"
-          },
-          "hide": false,
-          "queryText": "SELECT\n  strftime('%Y-%m-01', date) AS time,\n  category,\n  SUM(amount) AS total\nFROM history\n-- WHERE\n -- date >= '[start_date]'\n -- AND date <= '[end_date]'\n -- iban = '[iban]'\n GROUP BY time, category\nORDER BY time, category;\n",
+          "queryText": "SELECT date, patrimony from monthly_summary WHERE date >= '2025-01-01'  AND date < '2025-12-31'",
           "queryType": "table",
-          "rawQueryText": "SELECT\n  strftime('%Y-%m-01', date) AS time,\n  category,\n  SUM(amount) AS total\nFROM history\n-- WHERE\n -- date >= '[start_date]'\n -- AND date <= '[end_date]'\n -- iban = '[iban]'\n GROUP BY time, category\nORDER BY time, category;\n",
+          "rawQueryText": "SELECT date, patrimony from monthly_summary WHERE date >= '$start_date'  AND date < '$end_date'",
           "refId": "A",
           "timeColumns": [
             "time",
@@ -119,7 +112,243 @@
         }
       ],
       "title": "New panel",
-      "type": "timeseries"
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "fepm46qzm2z28d"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": true,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 90,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 0,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 14,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "auto",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "queryText": "SELECT date, total from monthly_summary WHERE date >= '2025-01-01'  AND date < '2025-12-31'",
+          "queryType": "table",
+          "rawQueryText": "SELECT date, total from monthly_summary WHERE date >= '$start_date'  AND date < '$end_date'",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Acumulated",
+      "type": "barchart"
+    },
+    {
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "fepm46qzm2z28d"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineWidth": 1,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "__systemRef": "hideSeriesFrom",
+            "matcher": {
+              "id": "byNames",
+              "options": {
+                "mode": "exclude",
+                "names": [
+                  "OCIO_DIG",
+                  "TRANSPORTE",
+                  "CAJERO",
+                  "BAZAR",
+                  "AWS",
+                  "AMAZON"
+                ],
+                "prefix": "All except:",
+                "readOnly": true
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": true
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 14,
+        "x": 0,
+        "y": 8
+      },
+      "id": 1,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.97,
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "orientation": "auto",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        },
+        "xTickLabelRotation": -45,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "fepm46qzm2z28d"
+          },
+          "hide": false,
+          "queryText": "SELECT \n  strftime('%Y-%m', date) AS month,\n  SUM(CASE WHEN category = 'NOMINA' THEN amount ELSE 0 END) AS NOMINA,\n  SUM(CASE WHEN category = 'VIVIENDA' THEN amount ELSE 0 END) AS VIVIENDA,\n  SUM(CASE WHEN category = 'INVERSION' THEN amount ELSE 0 END) AS INVERSION,\n  SUM(CASE WHEN category = 'AMAZON' THEN amount ELSE 0 END) AS AMAZON,\n  SUM(CASE WHEN category = 'AWS' THEN amount ELSE 0 END) AS AWS,\n  SUM(CASE WHEN category = 'BAZAR' THEN amount ELSE 0 END) AS BAZAR,\n  SUM(CASE WHEN category = 'CAJERO' THEN amount ELSE 0 END) AS CAJERO,\n  SUM(CASE WHEN category = 'TRANSPORTE' THEN amount ELSE 0 END) AS TRANSPORTE,\n  SUM(CASE WHEN category = 'OCIO_DIG' THEN amount ELSE 0 END) AS OCIO_DIG\n  \nFROM history\nWHERE date >= '$start_date'\n  AND date < '$end_date'\n  AND iban = '$account'\nGROUP BY month\nORDER BY month;",
+          "queryType": "table",
+          "rawQueryText": "SELECT \n  strftime('%Y-%m', date) AS month,\n  SUM(CASE WHEN category = 'NOMINA' THEN amount ELSE 0 END) AS NOMINA,\n  SUM(CASE WHEN category = 'VIVIENDA' THEN amount ELSE 0 END) AS VIVIENDA,\n  SUM(CASE WHEN category = 'INVERSION' THEN amount ELSE 0 END) AS INVERSION,\n  SUM(CASE WHEN category = 'AMAZON' THEN amount ELSE 0 END) AS AMAZON,\n  SUM(CASE WHEN category = 'AWS' THEN amount ELSE 0 END) AS AWS,\n  SUM(CASE WHEN category = 'BAZAR' THEN amount ELSE 0 END) AS BAZAR,\n  SUM(CASE WHEN category = 'CAJERO' THEN amount ELSE 0 END) AS CAJERO,\n  SUM(CASE WHEN category = 'TRANSPORTE' THEN amount ELSE 0 END) AS TRANSPORTE,\n  SUM(CASE WHEN category = 'OCIO_DIG' THEN amount ELSE 0 END) AS OCIO_DIG\n  \nFROM history\nWHERE date >= '$start_date'\n  AND date < '$end_date'\n  AND iban = '$account'\nGROUP BY month\nORDER BY month;",
+          "refId": "B",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        },
+        {
+          "datasource": {
+            "type": "frser-sqlite-datasource",
+            "uid": "bepjk75gyn94wb"
+          },
+          "hide": true,
+          "queryText": "SELECT \n    strftime('%Y-%m', date) AS month,\n    category,\n    SUM(amount) AS total_amount\nFROM history\nWHERE date >= '2024-01-01'\n  AND date < '2024-08-01'\n  AND iban = 'ES2321003877390100335881'\nGROUP BY month, category\nORDER BY month, category;\n",
+          "queryType": "table",
+          "rawQueryText": "SELECT \n    strftime('%Y-%m', date) AS month,\n    category,\n    SUM(amount) AS total_amount\nFROM history\nWHERE date >= '2024-01-01'\n  AND date < '2024-08-01'\n  AND iban = 'ES2321003877390100335881'\nGROUP BY month, category\nORDER BY month, category;\n",
+          "refId": "A",
+          "timeColumns": [
+            "time",
+            "ts"
+          ]
+        }
+      ],
+      "title": "Categorias",
+      "type": "barchart"
     }
   ],
   "preload": false,
@@ -136,7 +365,7 @@
         "definition": "SELECT DISTINCT iban FROM history ORDER BY iban;",
         "includeAll": false,
         "label": "Cuenta bancaria",
-        "name": "Account",
+        "name": "account",
         "options": [],
         "query": "SELECT DISTINCT iban FROM history ORDER BY iban;",
         "refresh": 1,
@@ -145,25 +374,25 @@
       },
       {
         "current": {
-          "text": "2024-01-01",
-          "value": "2024-01-01"
+          "text": "2025-01-01",
+          "value": "2025-01-01"
         },
         "label": "Start date",
         "name": "start_date",
         "options": [
           {
             "selected": true,
-            "text": "2024-01-01",
-            "value": "2024-01-01"
+            "text": "2025-01-01",
+            "value": "2025-01-01"
           }
         ],
-        "query": "2024-01-01",
+        "query": "2025-01-01",
         "type": "textbox"
       },
       {
         "current": {
-          "text": "2024-12-31",
-          "value": "2024-12-31"
+          "text": "2025-12-31",
+          "value": "2025-12-31"
         },
         "description": "",
         "label": "End date",
@@ -171,11 +400,11 @@
         "options": [
           {
             "selected": true,
-            "text": "2024-12-31",
-            "value": "2024-12-31"
+            "text": "2025-12-31",
+            "value": "2025-12-31"
           }
         ],
-        "query": "2024-12-31",
+        "query": "2025-12-31",
         "type": "textbox"
       }
     ]
@@ -186,7 +415,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Finances",
-  "uid": "adwzxp7",
+  "title": "Finances1",
+  "uid": "adqgrvv",
   "version": 1
 }
