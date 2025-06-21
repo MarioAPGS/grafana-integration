@@ -1,6 +1,12 @@
 FROM grafana/grafana-oss:latest
 USER root
 
+ENV DS_POSTGRES_HOST=dpg-d1b8se15pdvs73dk6580-a.oregon-postgres.render.com \
+    DS_POSTGRES_PORT=5432 \
+    DS_POSTGRES_USER=core_lz4l_user \
+    DS_POSTGRES_PASSWORD=my_password \
+    DS_POSTGRES_DB=core_lz4l
+
 # ── System & Python deps ──────────────────────────────
 RUN apk add --no-cache python3 py3-pip bash nginx gettext \
     && pip3 install --no-cache-dir --break-system-packages uv \

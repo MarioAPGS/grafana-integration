@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL
+    uid: postgres_ds
+    type: postgres
+    access: proxy
+    url: ${DS_POSTGRES_HOST}:${DS_POSTGRES_PORT}
+    user: ${DS_POSTGRES_USER}
+    secureJsonData:
+      password: ${DS_POSTGRES_PASSWORD}
+    database: ${DS_POSTGRES_DB}
+    isDefault: false
+    jsonData:
+      sslmode: disable
+      postgresVersion: 1500
+      timescaledb: false
