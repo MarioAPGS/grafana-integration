@@ -2,7 +2,7 @@ FROM grafana/grafana-oss:latest
 USER root
 
 # ── System & Python deps ──────────────────────────────
-RUN apk add --no-cache python3 py3-pip bash nginx gettext \
+RUN apk add --no-cache python3 py3-pip bash nginx gettext jq \
     && pip3 install --no-cache-dir --break-system-packages uv \
     && grafana-cli --pluginsDir "/var/lib/grafana/plugins" plugins install frser-sqlite-datasource \
     && chown -R 472:472 /var/lib/grafana/plugins \
