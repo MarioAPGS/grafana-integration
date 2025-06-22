@@ -20,6 +20,25 @@ jobs:
         run: |
           echo "DS_POSTGRES_PASSWORD=${{ secrets.DS_POSTGRES_PASSWORD }}" >> env.grafana
       
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install plugin dependencies
+        working-directory: mapdevs-fileuploader-app
+        run: npm install
+      
+      - name: Build plugin
+        working-directory: mapdevs-fileuploader-app
+        run: npm run build
+
+      - name: Build backend Go plugin
+        working-directory: mapdevs-fileuploader-app/src/backend
+        run: |
+          go mod tidy
+          GOOS=linux GOARCH=amd64 go build -o ../../dist/_linux_amd64 main.go
+          
       - name: Build Docker image
         run: |
           docker build -t grafana-integration:latest .
@@ -39,4 +58,4 @@ jobs:
       - name: Trigger deployment on Render
         run: |
           curl -X GET "${{ secrets.RENDER_TRIGGER_URL }}"
-          
+
