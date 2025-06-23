@@ -2,7 +2,7 @@ name: Build and Deploy Grafana
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ['main']
   workflow_dispatch:
   # tags:
   #   - "*"
@@ -11,15 +11,49 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v3
-      
+
       - name: Inject Grafana password into env file
         run: |
+          echo "" >> env.grafana
           echo "DS_POSTGRES_PASSWORD=${{ secrets.DS_POSTGRES_PASSWORD }}" >> env.grafana
-      
+          echo "" >> env.grafana
+          echo "GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_HOST_URL=${{ vars.GF_HOST_URL }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_DASHBOARD_MGR_USER=${{ vars.GF_DASHBOARD_MGR_USER }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_DASHBOARD_MGR_PASSWORD=${{ secrets.GF_DASHBOARD_MGR_PASSWORD }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_HOST_URL=${{ vars.GF_HOST_URL }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_AUTH_GITHUB_CLIENT_ID=${{ vars.GF_AUTH_GITHUB_CLIENT_ID }}" >> env.grafana
+          echo "" >> env.grafana
+          echo "GF_AUTH_GITHUB_CLIENT_SECRET=${{ secrets.GF_AUTH_GITHUB_CLIENT_SECRET }}" >> env.grafana
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install plugin dependencies
+        working-directory: mapdevs-fileuploader-app
+        run: npm install
+
+      - name: Build plugin
+        working-directory: mapdevs-fileuploader-app
+        run: npm run build
+
+      # - name: Build backend Go plugin
+      #   working-directory: mapdevs-fileuploader-app
+      #   run: |
+      #     go mod tidy
+      #     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o dist/mapdevs-fileuploader-app ./src/backend/main.go
+
       - name: Build Docker image
         run: |
           docker build -t grafana-integration:latest .
@@ -39,4 +73,3 @@ jobs:
       - name: Trigger deployment on Render
         run: |
           curl -X GET "${{ secrets.RENDER_TRIGGER_URL }}"
-          

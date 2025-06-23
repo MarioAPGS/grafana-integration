@@ -1,0 +1,3 @@
+plugins:
+  - id: mapdevs-fileuploader-app
+    enabled: true
