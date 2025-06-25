@@ -1,0 +1,493 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: grafana-catalog-api
+  description: API for managing Grafana dashboards
+  annotations:
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: openapi
+  lifecycle: production
+  owner: group:default/finances-group
+  definition: |
+    openapi: 3.0.0
+    info:
+      title: Grafana Catalog API
+      description: API to interact with Grafana dashboards from Backstage
+      version: 1.0.0
+    servers:
+      - url: http://localhost:7007/api/grafana-catalog
+        description: Grafana Catalog API endpoint
+      - url: https://backstage-latest-g8a1.onrender.com/api/grafana-catalog
+        description: Grafana Catalog API endpoint
+    components:
+      securitySchemes:
+        bearerAuth:
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+      schemas:
+        Error:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Error message
+            name:
+              type: string
+              description: Error name/type
+        Dashboard:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Dashboard ID
+            slug:
+              type: string
+              description: Dashboard slug
+            title:
+              type: string
+              description: Dashboard title
+            uid:
+              type: string
+              description: Dashboard UID
+            dashboard:
+              type: object
+              description: Dashboard JSON data
+            meta:
+              type: object
+              properties:
+                isFolder:
+                  type: boolean
+                folderTitle:
+                  type: string
+                folderId:
+                  type: integer
+            folderUid:
+              type: string
+            overwrite:
+              type: boolean
+            message:
+              type: string
+          required:
+            - title
+            - dashboard
+        DashboardCreate:
+          type: object
+          properties:
+            kind:
+              type: string
+              description: Resource kind (Dashboard)
+              enum: [Dashboard]
+            apiVersion:
+              type: string
+              description: API version
+              enum: [dashboard.grafana.app/v1beta1]
+            metadata:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Dashboard name
+                namespace:
+                  type: string
+                  description: Dashboard namespace
+              required:
+                - name
+                - namespace
+            spec:
+              type: object
+              description: Dashboard specification
+          required:
+            - kind
+            - apiVersion
+            - metadata
+            - spec
+        DashboardList:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  uid:
+                    type: string
+                  title:
+                    type: string
+                  url:
+                    type: string
+                  type:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                  isStarred:
+                    type: boolean
+                  folderUid:
+                    type: string
+                  folderTitle:
+                    type: string
+                  folderUrl:
+                    type: string
+            count:
+              type: integer
+            totalCount:
+              type: integer
+        Folder:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: Folder ID
+            uid:
+              type: string
+              description: Folder UID
+            title:
+              type: string
+              description: Folder title
+            url:
+              type: string
+              description: Folder URL
+            hasAcl:
+              type: boolean
+              description: Whether folder has ACL
+            canSave:
+              type: boolean
+              description: Whether user can save to folder
+            canEdit:
+              type: boolean
+              description: Whether user can edit folder
+            canAdmin:
+              type: boolean
+              description: Whether user has admin rights on folder
+            createdBy:
+              type: string
+              description: User who created the folder
+            created:
+              type: string
+              format: date-time
+              description: Creation timestamp
+            updatedBy:
+              type: string
+              description: User who last updated the folder
+            updated:
+              type: string
+              format: date-time
+              description: Update timestamp
+            version:
+              type: integer
+              description: Folder version
+        FolderList:
+          type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Folder'
+            count:
+              type: integer
+            totalCount:
+              type: integer
+      responses:
+        Error:
+          description: An error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        NotFound:
+          description: The requested resource was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    security:
+      - bearerAuth: []
+    paths:
+      /dashboards:
+        get:
+          summary: List all dashboards
+          operationId: listDashboards
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to list dashboards from (defaults to 'default')
+          responses:
+            '200':
+              description: A list of dashboards
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/DashboardList'
+            '500':
+              $ref: '#/components/responses/Error'
+        post:
+          summary: Create a new dashboard
+          operationId: createDashboard
+          security:
+            - bearerAuth: []
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DashboardCreate'
+          responses:
+            '201':
+              description: The created dashboard
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Dashboard'
+            '500':
+              $ref: '#/components/responses/Error'
+      /dashboards/{name}:
+        get:
+          summary: Get a dashboard by name
+          operationId: getDashboard
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: name
+              in: path
+              required: true
+              schema:
+                type: string
+              description: The name/slug of the dashboard
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to get the dashboard from (defaults to 'default')
+          responses:
+            '200':
+              description: The dashboard details
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Dashboard'
+            '404':
+              $ref: '#/components/responses/NotFound'
+            '500':
+              $ref: '#/components/responses/Error'
+        put:
+          summary: Update a dashboard
+          operationId: updateDashboard
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: name
+              in: path
+              required: true
+              schema:
+                type: string
+              description: The name/slug of the dashboard
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DashboardCreate'
+          responses:
+            '200':
+              description: The updated dashboard
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Dashboard'
+            '404':
+              $ref: '#/components/responses/NotFound'
+            '500':
+              $ref: '#/components/responses/Error'
+        delete:
+          summary: Delete a dashboard
+          operationId: deleteDashboard
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: name
+              in: path
+              required: true
+              schema:
+                type: string
+              description: The name/slug of the dashboard
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to delete the dashboard from
+          responses:
+            '204':
+              description: Dashboard successfully deleted
+            '404':
+              $ref: '#/components/responses/NotFound'
+            '500':
+              $ref: '#/components/responses/Error'
+      /folders:
+        get:
+          summary: List all folders
+          operationId: listFolders
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to list folders from
+          responses:
+            '200':
+              description: A list of folders
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/FolderList'
+            '500':
+              $ref: '#/components/responses/Error'
+        post:
+          summary: Create a new folder
+          operationId: createFolder
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to create the folder in
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      description: The title of the folder
+                    parentFolderUid:
+                      type: string
+                      description: Optional UID of parent folder (if not provided, creates at root)
+                  required:
+                    - title
+          responses:
+            '201':
+              description: The created folder
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Folder'
+            '400':
+              description: Bad request - Missing or invalid parameters
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+            '500':
+              $ref: '#/components/responses/Error'
+      /folders/{path}:
+        delete:
+          summary: Delete a folder by path
+          operationId: deleteFolderByPath
+          security:
+            - bearerAuth: []
+          parameters:
+            - name: path
+              in: path
+              required: true
+              schema:
+                type: string
+              description: The path of the folder to delete
+              style: simple
+            - name: namespace
+              in: query
+              required: false
+              schema:
+                type: string
+              description: The namespace to delete the folder from
+            - name: recursive
+              in: query
+              required: false
+              schema:
+                type: boolean
+                default: false
+              description: Whether to recursively delete all dashboards in the folder
+          responses:
+            '204':
+              description: Folder successfully deleted
+            '404':
+              $ref: '#/components/responses/NotFound'
+            '500':
+              $ref: '#/components/responses/Error'
+      /health:
+        get:
+          summary: Health check endpoint
+          operationId: healthCheck
+          security: []
+          responses:
+            '200':
+              description: Service is healthy
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: ok
+      /token:
+        post:
+          summary: Set Grafana token
+          operationId: setGrafanaToken
+          security: []
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                      description: Grafana API token
+                  required:
+                    - token
+          responses:
+            '204':
+              description: Token stored/updated successfully
+            '400':
+              description: Bad request - Missing or invalid parameters
+              content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/Error'
+            '500':
+              $ref: '#/components/responses/Error'
+      /api-docs:
+        get:
+          summary: Get OpenAPI specification
+          operationId: getApiDocs
+          security:
+            - bearerAuth: []
+          responses:
+            '200':
+              description: The OpenAPI specification
+              content:
+                application/json:
+                  schema:
+                    type: object
+            '500':
+              $ref: '#/components/responses/Error'

@@ -25,12 +25,6 @@ jobs:
           echo "" >> env.grafana
           echo "GF_HOST_URL=${{ vars.GF_HOST_URL }}" >> env.grafana
           echo "" >> env.grafana
-          echo "GF_DASHBOARD_MGR_USER=${{ vars.GF_DASHBOARD_MGR_USER }}" >> env.grafana
-          echo "" >> env.grafana
-          echo "GF_DASHBOARD_MGR_PASSWORD=${{ secrets.GF_DASHBOARD_MGR_PASSWORD }}" >> env.grafana
-          echo "" >> env.grafana
-          echo "GF_HOST_URL=${{ vars.GF_HOST_URL }}" >> env.grafana
-          echo "" >> env.grafana
           echo "GF_AUTH_GITHUB_CLIENT_ID=${{ vars.GF_AUTH_GITHUB_CLIENT_ID }}" >> env.grafana
           echo "" >> env.grafana
           echo "GF_AUTH_GITHUB_CLIENT_SECRET=${{ secrets.GF_AUTH_GITHUB_CLIENT_SECRET }}" >> env.grafana

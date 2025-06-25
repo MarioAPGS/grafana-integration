@@ -17,8 +17,8 @@ grafana server \
 
 GRAFANA_PID=$!
 
-echo "⏳ Waiting 120 seconds to ensure final container..."
-sleep 120
+echo "⏳ Waiting 60 seconds to ensure final container..."
+sleep 60
 
 # ── Wait for Grafana to be ready and create API token ─────
 # Use background to avoid blocking other services
@@ -45,25 +45,38 @@ SA=$(curl -s -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
   }")
 echo "✔ Created Service Account: ${SA}"
 
-# Create dashboard manager user
-USER_ID=$(curl -s -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
-  -H "Content-Type: application/json" \
-  -X POST $GF_HOST_URL/api/admin/users \
-  -d "{
-    \"name\":\"$GF_DASHBOARD_MGR_USER\",
-    \"email\":\"$GF_DASHBOARD_MGR_USER@example.com\",
-    \"login\":\"$GF_DASHBOARD_MGR_USER\",
-    \"password\":\"$GF_DASHBOARD_MGR_PASSWORD\"
-    }")
-echo "✔ Created User: ${USER_ID}"
+# Extract SA_ID from the service account creation response
+SA_ID=$(echo "$SA" | jq -r '.id')
+echo "✔ Service Account ID: ${SA_ID}"
 
 # Create API token
-# TOKEN=$(curl -s -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
-#   -H "Content-Type: application/json" \
-#   -d "{\"name\":\"default-token\"}" \
-#   "$GH_HOST_URL/api/serviceaccounts/$SA_ID/tokens" | jq -r .key)
+TOKEN=$(curl -s -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"default-token"}' \
+  "$GF_HOST_URL/api/serviceaccounts/$SA_ID/tokens" | jq -r .key)
 
-# echo "SERVICE_ACCOUNT_TOKEN=$TOKEN" > /etc/grafana/sa_token.env
-# echo "✔ Service Account and Token created: $TOKEN"
+echo "SERVICE_ACCOUNT_TOKEN=$TOKEN" > /etc/grafana/sa_token.env
+echo "✔ Service Account and Token created: $TOKEN"
+
+# Optionally, send the token to the external endpoint (uncomment to use)
+curl -X 'POST' \
+  'https://backstage-latest-g8a1.onrender.com/api/grafana-catalog/token' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{"token": "'$TOKEN'"}'
+
+# Create dashboard manager user
+# USER_ID=$(curl -s -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
+#   -H "Content-Type: application/json" \
+#   -X POST $GF_HOST_URL/api/admin/users \
+#   -d "{
+#     \"name\":\"$GF_DASHBOARD_MGR_USER\",
+#     \"email\":\"$GF_DASHBOARD_MGR_USER@example.com\",
+#     \"login\":\"$GF_DASHBOARD_MGR_USER\",
+#     \"password\":\"$GF_DASHBOARD_MGR_PASSWORD\"
+#     }")
+# echo "✔ Created User: ${USER_ID}"
+
+
 
 wait $GRAFANA_PID
