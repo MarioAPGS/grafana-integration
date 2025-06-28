@@ -5,5 +5,5 @@ metadata:
   description: grafana entities
 spec:
   targets:
-    - ./backstage/api.yml
+    - ./backstage/api.yaml
     
