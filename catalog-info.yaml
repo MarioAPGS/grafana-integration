@@ -6,4 +6,4 @@ metadata:
 spec:
   targets:
     - ./backstage/api.yaml
-    
+    - ./backstage/template-dashboards.yaml

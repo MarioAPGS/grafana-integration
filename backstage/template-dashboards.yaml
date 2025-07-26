@@ -1,0 +1,110 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: grafana-dashboard-to-yaml
+  title: Registrar dashboard de Grafana como Component
+  description: Crea un archivo YAML de Backstage en un repo existente con el JSON del dashboard incrustado.
+  tags:
+    - grafana
+    - dashboard
+    - component
+spec:
+  owner: group:finances-group
+  system: finances
+  type: dashboard
+
+  parameters:
+    - title: Selección del repositorio y archivo
+      required: [repo, filePath, name]
+      properties:
+        repo:
+          title: Repositorio destino
+          type: string
+          description: Repo donde se creará/modificará el archivo YAML
+          ui:field: RepoSelectField
+          ui:options:
+            label: backstage-include   # el topic/label que filtras en tu custom field
+        filePath:
+          title: Ruta del archivo dentro del repo
+          type: string
+          description: Ej backstage/personal_finances.yaml
+          default: backstage/personal_finances.yaml
+        name:
+          title: Nombre del componente
+          type: string
+          description: metadata.name
+          default: personal_finances
+        namespace:
+          title: Namespace
+          type: string
+          default: default
+        description:
+          title: Descripción
+          type: string
+          default: Personal financial information
+        grafanaUrl:
+          title: URL del dashboard en Grafana
+          type: string
+          default: https://grafana-xyq9.onrender.com/d/personal_finances/personal-finances
+        owner:
+          title: Owner (spec.owner)
+          type: string
+          default: group:finances-group
+        system:
+          title: System (spec.system)
+          type: string
+          default: finances
+        lifecycle:
+          title: Lifecycle
+          type: string
+          default: production
+
+    - title: Pegar JSON del dashboard
+      required: [dashboardJson]
+      properties:
+        dashboardJson:
+          title: JSON del dashboard
+          type: string
+          ui:widget: textarea
+          ui:options:
+            rows: 25
+          description: Pega aquí el JSON exportado de Grafana.
+
+  steps:
+    # 1) Renderizamos el archivo desde el skeleton
+    - id: fetch
+      name: Render YAML
+      action: fetch:template
+      input:
+        url: ./skeleton                   # carpeta local dentro del template
+        targetPath: ./
+        values:
+          name: '{{ parameters.name }}'
+          namespace: '{{ parameters.namespace }}'
+          description: '{{ parameters.description }}'
+          grafanaUrl: '{{ parameters.grafanaUrl }}'
+          owner: '{{ parameters.owner }}'
+          system: '{{ parameters.system }}'
+          lifecycle: '{{ parameters.lifecycle }}'
+          dashboardJson: '{{ parameters.dashboardJson }}'
+
+    # 2) Creamos un PR al repo elegido con el archivo renderizado
+    - id: pr
+      name: Crear Pull Request
+      action: publish:github:pull-request
+      input:
+        repoUrl: 'github.com/{{ parameters.repo }}'     # tu custom field devuelve "org/repo"
+        branchName: 'add-dashboard-{{ parameters.name }}-{{ ('' + now).replace(/[:.TZ-]/g,"") | lower }}'
+        title: 'Add Grafana dashboard {{ parameters.name }}'
+        description: 'Dashboard agregado por Backstage template'
+        sourcePath: './'                                # todo lo renderizado
+        targetPath: '/'                                 # raíz del repo
+        commitMessage: 'chore(backstage): add grafana dashboard {{ parameters.name }}'
+        # Solo queremos un archivo. targetPath+filePath controla dónde cae.
+        # publish:github:pull-request copiará todo, así que limitaremos con 'outputPath'
+        outputPath: '{{ parameters.filePath }}'
+
+  # output:
+  #   links:
+  #     - title: Pull Request
+  #       url: '{{ steps.pr.output.remoteUrl }}'

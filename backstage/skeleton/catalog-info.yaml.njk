@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ values.name }}
+  namespace: {{ values.namespace }}
+  description: {{ values.description | dump | trim }}
+  links:
+    - url: {{ values.grafanaUrl }}
+      title: {{ values.name | replace('_', ' ') | capitalize }} dashboard
+      icon: dashboard
+spec:
+  lifecycle: {{ values.lifecycle }}
+  owner: {{ values.owner }}
+  system: {{ values.system }}
+  type: dashboard
+  dashboard: |-
+{% macro indent(value, spaces) -%}
+{%- set pad = ' ' * spaces -%}
+{%- for line in value.split('\n') -%}
+{{ pad ~ line }}
+{%- if not loop.last %}\n{%- endif -%}
+{%- endfor -%}
+{%- endmacro -%}
+{{ indent(values.dashboardJson, 2) }}
